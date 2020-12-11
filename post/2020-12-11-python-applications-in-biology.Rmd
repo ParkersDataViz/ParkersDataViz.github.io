@@ -1,0 +1,41 @@
+---
+title: 'Python Applications in Biology: FASTA'
+author: 'Parker Spradley'
+date: '2020-12-11'
+slug: python-applications-in-biology
+categories: []
+tags: []
+description: ''
+---
+#Using a RegEx Function to Count the # of Sequences in a FASTA File
+
+FASTA is a text-based format for representing nucleotide or amino acid sequences using single-letter code: Adenine = A, Thymine = T, C = Cytosine. A popular, free tool for comparing FASTA sequences is NIH's BLAST: https://blast.ncbi.nlm.nih.gov/Blast.cgi
+
+BLAST's algorithm is written in C and C++, but regular expressions in Python can perform a lot of the same functions as BLAST such as counting k-mers, calculating sequence alignment, etc. This is an example of a function I wrote for class that counts the number of sequences in a FASTA file by matching the number of single-line descriptors (">"):
+
+```{python}
+file_handle = open("ls_orchid.fasta", "r") # open in 'r' mode  to read the file
+contents = file_handle.read() # reads the entire file 
+file_handle.close() # always close at the end
+
+from pprint import pprint
+
+
+
+def count_seq(fname):
+    count = 0
+    with open(fname, 'r') as f:
+        for line in f:
+            if line.startswith(">"):
+                count += 1
+    print("Total number of sequences is:", count)
+
+fname = "ls_orchid.fasta"
+count_seq(fname)
+```
+
+#Lab Connection!
+Here are some pictures of old (Sanger Sequencing, 1977) and new (NGS, 1990-2000s) sequencing machines: 
+![](/post/2020-12-11-python-applications-in-biology_files/sanger.jpg)
+![](/post/2020-12-11-python-applications-in-biology_files/ngs.jpg)
+

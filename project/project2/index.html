@@ -74,28 +74,13 @@
 
 <div id="modeling" class="section level1">
 <h1>Modeling</h1>
-<div id="instructions" class="section level2">
-<h2>Instructions</h2>
-<p>A knitted R Markdown document (preferably HTML) and the raw R Markdown file (as .Rmd) should both be submitted to Canvas by 11:59pm on the due date. These two documents will be graded jointly, so they must be consistent (i.e., don’t change the R Markdown file without also updating the knitted document). Knit an html copy too, for later! In the .Rmd file for Project 2, you can copy the first code-chunk into your project .Rmd file to get better formatting. Notice that you can adjust the opts_chunk$set(...) above to set certain parameters if necessary to make the knitting cleaner (you can globally set the size of all plots, etc). You can copy the set-up chunk in Project2.Rmd: I have gone ahead and set a few for you (such as disabling warnings and package-loading messges when knitting)!</p>
-<p>Like before, I envision your written text forming something of a narrative structure around your code/output. All results presented must have corresponding code. Any answers/results/plots etc. given without the corresponding R code that generated the result will not be graded. Furthermore, all code contained in our project document should work properly. Please do not include any extraneous code or code which produces error messages. (Code which produces warnings is fine as long as you understand what the warnings mean.)</p>
-</div>
-<div id="find-data" class="section level2">
-<h2>Find data:</h2>
-<p>Find one dataset with at least 5 variables (ideally more!) that you want to use to build models/test hypotheses. At least one should be categorical (with 2-5 groups, ideally; definitely fewer than 10) and at least two should be numeric (taking on more than 10 distinct values). Ideally, at least of your variables will be binary (if not, you will have to create one by discretizing a numeric or collapsing levels of a categorical). You will need a minimum of 40 observations (<em>at least</em> 10 observations for every explanatory variable you have, ideally 20+ observations/variable).</p>
-<p>It is perfectly fine to use either dataset (or the merged dataset, or a subset of your variables) from Project 1. However, I might encourage you to diversify things a bit and choose a different dataset to work with (particularly if the variables did not reveal interesting associations in Project 1 that you want to follow up with). The only requirement/restriction is that you may not use data from any examples we have done in class or lab. It would be a good idea to pick more cohesive data this time around (i.e., variables that you actually thing might have a relationship you would want to test). Think more along the lines of your Biostats project.</p>
-<p>Again, you can use data from anywhere you want (see bottom for resources)! If you want a quick way to see whether a built-in (R) dataset has binary and/or character (i.e., categorical) variables, check out this list: <a href="https://vincentarelbundock.github.io/Rdatasets/datasets.html" class="uri">https://vincentarelbundock.github.io/Rdatasets/datasets.html</a>.</p>
-</div>
-<div id="guidelines-and-rubric" class="section level2">
-<h2>Guidelines and Rubric</h2>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This dataset, titled NCCTG Lung Cancer Data, contains information about survival times and the physical well-being of patients from the North Central Cancer Treatment Group who have advanced lung cancer. The dataset has 227 observations of 10 variables, and each observation corresponds to a different patient. There are 4 categorical variables: inst, status, sex, and ph.ecog. Institution refers to the patient's institution code, status refers to whether or not the patient died during the observation time of the study, sex refers to whether the patient is male or female, and ph.ecog refers to ECOG performance score as rated by a physician. ECOG performance status measures whether a patient is able to receive chemotherapy while maintaining an acceptable level of well-being; 0=asymptomatic, 1= symptomatic but completely ambulatory, 2= in bed &lt;50% of the day, 3= in bed &gt; 50% of the day but not bedbound, and 4 = bedbound. No patients in this dataset are in categories 3 or 4 for the ECOG test. There are 6 numerical variables: time, age, ph.karno, pat.karno, meal.cal, and wt.loss. Time refers to the patient's survival time in days, age refers to the patient's age in years, ph.karno refers to Karnofsky performance score (bad=0-good=100) rated by the physician, pat.karno refers to Karnofsky performance score as rated by patient, meal.cal refers to the number of kcal consumed at meals, and wt.loss corresponds to pounds of weight loss over a 6-month period.</p>
 <ul>
-<li><strong>0. (5 pts)</strong> Introduce your dataset and each of your variables (or just your main variables if you have lots) in a paragraph. What are they measuring? How many observations?</li>
+<li><strong>1. (15 pts)</strong></li>
 </ul>
-<p><em>This dataset, titled NCCTG Lung Cancer Data, contains information about survival times and the physical well-being of patients from the North Central Cancer Treatment Group who have advanced lung cancer. The dataset has 227 observations of 10 variables, and each observation corresponds to a different patient. There are 4 categorical variables: inst, status, sex, and ph.ecog. Institution refers to the patient's institution code, status refers to whether or not the patient died during the observation time of the study, sex refers to whether the patient is male or female, and ph.ecog refers to ECOG performance score as rated by a physician. ECOG performance status measures whether a patient is able to receive chemotherapy while maintaining an acceptable level of well-being; 0=asymptomatic, 1= symptomatic but completely ambulatory, 2= in bed &lt;50% of the day, 3= in bed &gt; 50% of the day but not bedbound, and 4 = bedbound. No patients in this dataset are in categories 3 or 4 for the ECOG test. There are 6 numerical variables: time, age, ph.karno, pat.karno, meal.cal, and wt.loss. Time refers to the patient's survival time in days, age refers to the patient's age in years, ph.karno refers to Karnofsky performance score (bad=0-good=100) rated by the physician, pat.karno refers to Karnofsky performance score as rated by patient, meal.cal refers to the number of kcal consumed at meals, and wt.loss corresponds to pounds of weight loss over a 6-month period.</em></p>
-<ul>
-<li><strong>1. (15 pts)</strong> Perform a MANOVA testing whether any of your numeric variables (or a subset of them, if including them all is unreasonable or doesn't make sense) show a mean difference across levels of one of your categorical variables (3). If they do, perform univariate ANOVAs to find response(s) showing a mean difference across groups (3), and perform post-hoc t tests to find which groups differ (3). Discuss the number of tests you have performed, calculate the probability of at least one type I error (if unadjusted), and adjust the significance level accordingly (bonferroni correction) before discussing significant differences (3). Briefly discuss MANOVA assumptions and whether or not they are likely to have been met (no need for anything too in-depth) (2).</li>
-</ul>
-<pre class="r"><code>#install.packages(&quot;survival&quot;)
-library(survival)
+<pre class="r"><code>library(survival)
 lung1 &lt;- lung %&gt;% na.omit()
 lung1 &lt;- subset(lung1, ph.ecog!=&quot;3&quot;)
 lung1 &lt;- lung1%&gt;%mutate(ph.ecog_f = as.factor(lung1$ph.ecog), .keep = &quot;all&quot;)
@@ -209,15 +194,32 @@ summary(man1)</code></pre>
 ## 2 0.044 0.713
 ## 
 ## P value adjustment method: none</code></pre>
-<p><em>The MANOVA test was significant, so I rejected the H0 that the 6 dependent numeric variables were the same across asymptomatic (0), symptomatic but ambulatory (1), and bedridden patients (2) (F= 64.379, df= 6, p= &lt; 2.2e-16).Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, and the numeric variables time (p= 0.01333), age (p= 4.944e-05), ph.karno (p= 2.2e-16), pat.karno (p= 1.989e-14), and wt.loss (p= 0.02691) were all significant. I conducted 12 hypothesis tests in all (1 MANOVA, 6 ANOVA, 5 t-tests), which gives a type 1 error probability of 1-.95^12 = 0.460.To keep the overall type I error rate at .05, I need to use a= .05/12 = .00417. Post hoc analysis was performed conducting pairwise comparisons to determine which groups differed in time, age, ph.karno, pat.karno, or wt.loss. ____________ after adjusting for multiple comparisons (bonferroni a= .00417).</em></p>
+<pre class="r"><code>#install.packages(&quot;rstatix&quot;)
+library(rstatix)
+
+group &lt;- lung1$ph.ecog
+DVs &lt;- lung1 %&gt;% select(time, age, ph.karno, pat.karno, meal.cal, wt.loss)
+sapply(split(DVs,group), mshapiro_test)</code></pre>
+<pre><code>##           0            1            2           
+## statistic 0.8916536    0.8084281    0.8390687   
+## p.value   0.0003942957 7.081832e-09 7.263979e-05</code></pre>
+<pre class="r"><code>box_m(DVs, group)</code></pre>
+<pre><code>## # A tibble: 1 x 4
+## statistic p.value parameter method
+## &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+## 1 73.4 0.00194 42 Box&#39;s M-test for Homogeneity of
+Covariance Matrices</code></pre>
+<p>The MANOVA test was significant, so I rejected the H0 that the 6 dependent numeric variables were the same across asymptomatic (0), symptomatic but ambulatory (1), and bedridden patients (2) (F= 62.945, df= 6, p= &lt; 2.2e-16).Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, and the numeric variables time (p= 0.02001), age (p= 7.319e-05), ph.karno (p= 2.2e-16), pat.karno (p= 1.593e-14), and wt.loss (p= 0.03655) were all significant. I conducted 12 hypothesis tests in all (1 MANOVA, 6 ANOVA, 5 t-tests), which gives a type 1 error probability of 1-.95^12 = 0.460.To keep the overall type I error rate at .05, I need to use a= .05/12 = .00417.</p>
+<p>Post hoc analysis was performed conducting pairwise comparisons to determine which groups differed in time, age, ph.karno, pat.karno, or wt.loss. The post hoc tests that are no longer significant after the adjustment are group 0 vs. both groups 1 and 2 for wt.loss, group 0 vs. group 1 for pat.karno, and groups 1 and 0 vs. group 2 for time (bonferroni a= .00417)</p>
+<p>MANOVA assumes multivariate normality of DVs and homogeneity of within-group covariance matrices. Since the Box M-test and the Shapiro-Wilks tests both returned significant p-values, it is unlikely that the covariance matrices are homogenous or normal, and it likely these MANOVA assumptions were not met.</p>
 <ul>
-<li><strong>2. (10 pts)</strong> Perform some kind of randomization test on your data (that makes sense). The statistic can be anything you want (mean difference, correlation, F-statistic/ANOVA, chi-squared), etc. State null and alternative hypotheses, perform the test, and interpret the results (7). Create a plot visualizing the null distribution and the test statistic (3).</li>
+<li><strong>2. (10 pts)</strong></li>
 </ul>
-<pre class="r"><code>t.test(data=lung1, ph.karno~status)</code></pre>
+<pre class="r"><code>t.test(data=lung1, ph.karno~status_f)</code></pre>
 <pre><code>##
 ## Welch Two Sample t-test
 ##
-## data: ph.karno by status
+## data: ph.karno by status_f
 ## t = 2.0903, df = 90.071, p-value = 0.03941
 ## alternative hypothesis: true difference in means is not
 equal to 0
@@ -226,98 +228,26 @@ equal to 0
 ## sample estimates:
 ## mean in group 1 mean in group 2
 ## 85.31915 80.92437</code></pre>
-<pre class="r"><code>lung1%&gt;%group_by(status)%&gt;%summarize(s=sd(ph.karno))%&gt;%summarize(diff(s))</code></pre>
-<pre><code>## # A tibble: 1 x 1
-##   `diff(s)`
-##       &lt;dbl&gt;
-## 1     0.870</code></pre>
 <pre class="r"><code>rand_dist&lt;-vector()
+
 for(i in 1:5000){
-new&lt;-data.frame(ph.karno=sample(lung1$ph.karno),status=lung1$status)
-rand_dist[i]&lt;-sd(new[new$status==1,]$ph.karno)-
-sd(new[new$status==2,]$ph.karno)
-}
-mean(rand_dist&lt; -0.8703849   | rand_dist&gt; 0.8703849  ) </code></pre>
-<pre><code>## [1] 0.5538</code></pre>
-<pre class="r"><code>{hist(rand_dist,main=&quot;&quot;,ylab=&quot;&quot;); abline(v = c(0.8703849,-0.8703849),col=&quot;red&quot;)}</code></pre>
+new&lt;-data.frame(ph.karno=sample(lung1$ph.karno),status_f=lung1$status_f)
+rand_dist[i]&lt;-mean(new[new$status_f==&quot;1&quot;,]$ph.karno)-
+mean(new[new$status_f==&quot;2&quot;,]$ph.karno)}
+
+mean(rand_dist&lt; -4.39478 | rand_dist&gt; 4.39478 ) </code></pre>
+<pre><code>## [1] 0.0392</code></pre>
+<pre class="r"><code>{hist(rand_dist,main=&quot;&quot;,ylab=&quot;&quot;); abline(v = c(4.39478,-4.39478),col=&quot;red&quot;)}</code></pre>
 <p><img src="../../project/project2_files/figure-html/unnamed-chunk-2-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>The means in physician-rated Karnofsky score are significantly different between group 1 and group 2 (p = 0.03941). The survivor group had a mean Karnofsky score of 85.31915, while the deceased group had a mean Karnofsky score of 80.92437. A permutation test was performed to investigate the following hypotheses: H0 = Physician-rated Karnofsky score is the same for surviving vs. deceased patients HA = Physician-rated Karnofsky score is different for surviving vs. deceased patients In the histogram, most of the sampling distribution lies within the confidence intervals generated by the actual means. The p-value calculated by the permutation test was 0.0434, which means that we reject H0 and HA holds true for both the in and out-sample populations. It is therefore likely that the association between status and ph.karno is non-random.</p>
 <ul>
-<li><p><strong>3. (35 pts)</strong> Build a linear regression model predicting one of your response variables from at least 2 other variables, including their interaction. Mean-center any numeric variables involved in the interaction.</p>
-<ul>
-<li>Interpret the coefficient estimates (do not discuss significance) (10)</li>
-<li>Plot the regression using <code>ggplot()</code> using geom_smooth(method=&quot;lm&quot;). If your interaction is numeric by numeric, refer to code in the slides to make the plot or check out the <code>interactions</code> package, which makes this easier. If you have 3 or more predictors, just chose two of them to plot for convenience. (8)</li>
-<li>Check assumptions of linearity, normality, and homoskedasticity either graphically or using a hypothesis test (4)</li>
-<li>Regardless, recompute regression results with robust standard errors via <code>coeftest(..., vcov=vcovHC(...))</code>. Discuss significance of results, including any changes from before/after robust SEs if applicable. (8)</li>
-<li>What proportion of the variation in the outcome does your model explain? (4)</li>
-</ul></li>
+<li><strong>3. (35 pts)</strong></li>
 </ul>
 <pre class="r"><code>lung1$ph.karno_c &lt;- lung1$ph.karno - mean(lung1$ph.karno)
 lung1$pat.karno_c &lt;- lung1$pat.karno - mean(lung1$pat.karno)
 
-fit&lt;-lm( status~sex_f*ph.karno_c, data=lung1)
+fit&lt;-lm( pat.karno_c~sex_f*ph.karno_c, data=lung1)
 summary(fit)</code></pre>
-<pre><code>##
-## Call:
-## lm(formula = status ~ sex_f * ph.karno_c, data = lung1)
-##
-## Residuals:
-## Min 1Q Median 3Q Max
-## -0.8920 -0.4106 0.1985 0.2588 0.5894
-##
-## Coefficients:
-## Estimate Std. Error t value Pr(&gt;|t|)
-## (Intercept) 1.794969 0.043263 41.490 &lt; 2e-16 ***
-## sex_f2 -0.205727 0.069691 -2.952 0.00363 **
-## ph.karno_c -0.003017 0.003444 -0.876 0.38238
-## sex_f2:ph.karno_c -0.007003 0.005479 -1.278 0.20301
-## ---
-## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
-&#39; &#39; 1
-##
-## Residual standard error: 0.4368 on 162 degrees of
-freedom
-## Multiple R-squared: 0.08252, Adjusted R-squared: 0.06553
-## F-statistic: 4.857 on 3 and 162 DF, p-value: 0.002912</code></pre>
-<pre class="r"><code> ggplot(lung1, aes(ph.karno_c,status, color = sex_f)) + geom_smooth(method = &quot;lm&quot;, se = F, fullrange = T)</code></pre>
-<p><img src="../../project/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
-<pre class="r"><code> 1.794969 - 0.205727 </code></pre>
-<pre><code>## [1] 1.589242</code></pre>
-<pre class="r"><code>lung1%&gt;%group_by(sex)%&gt;%summarise(mean(status))</code></pre>
-<pre><code>## # A tibble: 2 x 2
-##     sex `mean(status)`
-##   &lt;dbl&gt;          &lt;dbl&gt;
-## 1     1           1.79
-## 2     2           1.59</code></pre>
-<pre class="r"><code>#normality
-resids&lt;-fit$residuals
-shapiro.test(resids)</code></pre>
-<pre><code>## 
-##  Shapiro-Wilk normality test
-## 
-## data:  resids
-## W = 0.791, p-value = 3.964e-14</code></pre>
-<pre class="r"><code>#linearity &amp; homoskedasticity
-library(sandwich); library(lmtest)
-bptest(fit)</code></pre>
-<pre><code>## 
-##  studentized Breusch-Pagan test
-## 
-## data:  fit
-## BP = 5.6462, df = 3, p-value = 0.1302</code></pre>
-<pre class="r"><code>coeftest(fit, vcov = vcovHC(fit))</code></pre>
-<pre><code>##
-## t test of coefficients:
-##
-## Estimate Std. Error t value Pr(&gt;|t|)
-## (Intercept) 1.7949693 0.0405617 44.2529 &lt; 2.2e-16 ***
-## sex_f2 -0.2057272 0.0734829 -2.7997 0.005738 **
-## ph.karno_c -0.0030166 0.0032839 -0.9186 0.359658
-## sex_f2:ph.karno_c -0.0070027 0.0055407 -1.2639 0.208094
-## ---
-## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
-&#39; &#39; 1</code></pre>
-<pre class="r"><code>fit1&lt;-lm( pat.karno_c~sex_f*ph.karno_c, data=lung1)
-summary(fit1)</code></pre>
 <pre><code>##
 ## Call:
 ## lm(formula = pat.karno_c ~ sex_f * ph.karno_c, data =
@@ -340,45 +270,68 @@ lung1)
 ## Residual standard error: 12.84 on 162 degrees of freedom
 ## Multiple R-squared: 0.2929, Adjusted R-squared: 0.2798
 ## F-statistic: 22.37 on 3 and 162 DF, p-value: 3.589e-12</code></pre>
-<p>**1.794969 (alive = 1, dead = 2) is the predicted status for male patients (sex = 1) with an average Karnofsky performance score as rated by a physician. Among patients with an average Karnofsky performance score as rated by a physician, females have a predicted status that is 0.205727 less than males ( 1.794969 - 0.205727 = 1.589242). For every one point increase in Karnofsky score as rated by a physician, male patients have a predicted status 0.003017 less than male patients with an average physician-rated Karnofsky score. The slope of physician-rated Karnofsky score on status is 0.007003 lower for females than for males.</p>
-<p>The assumptions for linearity and homoskedasticity were met, but the assumption for normality was violated. Although linearity and homoskedasticity were met, the regression results were recomputed with robust standard errors. This adjusted the SEs to correct for violations of homoskedasticity; the SEs for sex and the interaction between sex and ph.karno increased while the SEs for the intercept and ph.karno decreased. Consequently, the p-value increased slightly for both sex and the interaction between sex and ph.karno but decreased slightly for intercept and ph.karno.</p>
-<p>The full model explains 0.08252 of the variation in status.**</p>
+<pre class="r"><code> ggplot(lung1, aes(ph.karno_c,pat.karno_c, color = sex_f)) + geom_smooth(method = &quot;lm&quot;, se = F, fullrange = T)+geom_vline(xintercept=0,lty=2)</code></pre>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#normality
+resids&lt;-fit$residuals
+shapiro.test(resids)</code></pre>
+<pre><code>## 
+##  Shapiro-Wilk normality test
+## 
+## data:  resids
+## W = 0.98449, p-value = 0.06121</code></pre>
+<pre class="r"><code>#linearity &amp; homoskedasticity
+library(sandwich); library(lmtest)
+bptest(fit)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 6.5336, df = 3, p-value = 0.08834</code></pre>
+<pre class="r"><code>coeftest(fit, vcov = vcovHC(fit))</code></pre>
+<pre><code>##
+## t test of coefficients:
+##
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) -0.986896 1.309737 -0.7535 0.4522
+## sex_f2 2.593907 2.054773 1.2624 0.2086
+## ph.karno_c 0.608812 0.103747 5.8682 2.414e-08 ***
+## sex_f2:ph.karno_c 0.075891 0.160847 0.4718 0.6377
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<p>**Male patients (sex = 1) with an average physician-rated Karnofsky score are expected to have an average patient-reported Karnofsky performance score that is 0.98690 points lower than the physician-rated score. Among patients with an average physician-rated Karnofsky score, females have a predicted patient-rated Karnofsky score that is 2.59391 higher than males'. For every one point increase in physician-rated Karnofsky score, male patients have a predicted patient score increase of 0.60881 compared to male patients with an average physician-rated Karnofsky score. The slope of physician-rated Karnofsky score on patient-rated Karnofsky score is is 0.075891 higher for females than for males. Generally, these coefficients suggest that there is a strong, direct correlation between physician-rated and patient-rated Karnofsky performance score, which suggests that the patients were able to self-assess their well-being accurately.</p>
+<p>The assumptions for normality (p = 0.06121), linearity, and homoskedasticity (p = 0.08834) were met. Although linearity and homoskedasticity were met, the regression results were recomputed with robust standard errors. This adjusted the SEs to correct for violations of homoskedasticity; the SEs for the intercept, sex, and ph.karno increased while the SE for the interaction between sex and ph.karno decreased. Consequently, the p-value increased slightly for the intercept, sex, and ph.karno but decreased slightly for ithe interaction between sex and ph.karno.</p>
+<p>The full model explains 0.2929 of the variation in patient-reported Karnofsky score.**</p>
 <ul>
-<li><strong>4. (5 pts)</strong> Rerun same regression model (with the interaction), but this time compute bootstrapped standard errors (either by resampling observations or residuals). Discuss any changes you observe in SEs and p-values using these SEs compared to the original SEs and the robust SEs)</li>
+<li><strong>4. (5 pts)</strong></li>
 </ul>
 <pre class="r"><code>boot_dat&lt;- sample_frac(lung1, replace=T)
 
 samp_distn&lt;-replicate(5000, {
 boot_dat &lt;- sample_frac(lung1, replace=T) 
-fit &lt;- lm(status~sex_f*ph.karno_c, data=boot_dat) 
+fit &lt;- lm(pat.karno_c~sex_f*ph.karno_c, data=boot_dat) 
 coef(fit) 
 })
 
 coeftest(fit)[,1:2]</code></pre>
-<pre><code>##                       Estimate  Std. Error
-## (Intercept)        1.794969261 0.043263193
-## sex_f2            -0.205727203 0.069691466
-## ph.karno_c        -0.003016637 0.003444038
-## sex_f2:ph.karno_c -0.007002688 0.005478647</code></pre>
+<pre><code>##                     Estimate Std. Error
+## (Intercept)       -0.9868960  1.2717621
+## sex_f2             2.5939067  2.0486459
+## ph.karno_c         0.6088122  0.1012407
+## sex_f2:ph.karno_c  0.0758912  0.1610500</code></pre>
 <pre class="r"><code>coeftest(fit, vcov=vcovHC(fit))[,1:2]</code></pre>
-<pre><code>##                       Estimate  Std. Error
-## (Intercept)        1.794969261 0.040561656
-## sex_f2            -0.205727203 0.073482888
-## ph.karno_c        -0.003016637 0.003283865
-## sex_f2:ph.karno_c -0.007002688 0.005540689</code></pre>
+<pre><code>##                     Estimate Std. Error
+## (Intercept)       -0.9868960  1.3097372
+## sex_f2             2.5939067  2.0547731
+## ph.karno_c         0.6088122  0.1037471
+## sex_f2:ph.karno_c  0.0758912  0.1608471</code></pre>
 <pre class="r"><code>samp_distn %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
-<pre><code>##   (Intercept)     sex_f2  ph.karno_c sex_f2:ph.karno_c
-## 1  0.04017814 0.07248681 0.003160583       0.005475503</code></pre>
-<p><strong>The SEs computed by resampling observations are very close compared to both the original SEs and the robust SEs.</strong></p>
+<pre><code>##   (Intercept)   sex_f2 ph.karno_c sex_f2:ph.karno_c
+## 1    1.295519 2.013237 0.09877852         0.1563537</code></pre>
+<p><strong>The SEs computed by resampling observations are very close compared to both the original SEs and the robust SEs because homoskedasticity and linearity were met.</strong></p>
 <ul>
-<li><p><strong>5. (25 pts)</strong> Fit a logistic regression model predicting a binary variable (if you don't have one, make/get one) from at least two explanatory variables (interaction not necessary).</p>
-<ul>
-<li>Interpret coefficient estimates in context (10)</li>
-<li>Report a confusion matrix for your logistic regression (2)</li>
-<li>Compute and discuss the Accuracy, Sensitivity (TPR), Specificity (TNR), Precision (PPV), and AUC of your model (5)</li>
-<li>Using ggplot, make a density plot of the log-odds (logit) colored/grouped by your binary outcome variable (3)</li>
-<li>Generate an ROC curve (plot) and calculate AUC (either manually or with a package); interpret (5)</li>
-</ul></li>
+<li><strong>5. (25 pts)</strong></li>
 </ul>
 <pre class="r"><code>data&lt;-lung1%&gt;%mutate(y=ifelse(status_f==&quot;2&quot;,1,0))
 head(data)</code></pre>
@@ -451,15 +404,15 @@ data %&gt;% ggplot(aes(logit, fill=status_f))+geom_density(alpha=.3)+
 <pre class="r"><code>library(plotROC)
 ROC&lt;-ggplot(data)+geom_roc(aes(d=y,m=probs), n.cuts=0)
 ROC</code></pre>
-<p><img src="../../project/project2_files/figure-html/unnamed-chunk-5-2.png" width="768" style="display: block; margin: auto;" /> **Controlling for physician-rated Karnofsky score, there is a significant effect of sex on reported death (p = 0.004559). The odds ratio is 0.3596750, so females are 64% times less likely than men to die during the observation period when physician-rated Karnofsky score is held constant. Controlling for sex, there is a significant effect of physician-rated Karnofsky score on reported death (p = 0.034774). Every one-unit increase in Karnofsky score multiplies the odds of reported death by 0.9686146, so the odds of reported death decrease by 3.1% for each additional Karnofsky performance point.</p>
+<p><img src="../../project/project2_files/figure-html/unnamed-chunk-5-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROC)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.6664581</code></pre>
+<p>**Controlling for physician-rated Karnofsky score, there is a significant effect of sex on reported death (p = 0.004559). The odds ratio is 0.3596750, so females are 64% times less likely than men to die during the observation period when physician-rated Karnofsky score is held constant. Controlling for sex, there is a significant effect of physician-rated Karnofsky score on reported death (p = 0.034774). Every one-unit increase in Karnofsky score multiplies the odds of reported death by 0.9686146, so the odds of reported death decrease by 3.1% for each additional Karnofsky performance point.</p>
+<p>The accuracy of the model, 0.7409639, indicates that about 74% of cases were classified correctly. The sensitivity of the model, 0.9747899, indicates that about 97.5% of reported deaths were correctly classified. The specificity of the model, 0.1489362, indicates that only about 14.9% of survivors were correctly classified. The precision, 0.7435897, is the proportion of the cases classified as deaths that actually were. The AUC for this model is 0.6664581, which is classified as poor.</p>
+<p>The area under the ROC curve was 0.6664581, which is classified as poor and is the same as the model. This model, which predicts status based off of the correlation between status and sex and between status and physician-rated Karnofsky performance score, is not very effective.**</p>
 <ul>
-<li><p><strong>6. (25 pts)</strong> Perform a logistic regression predicting the same binary response variable from <em>ALL</em> of the rest of your variables (the more, the better!)</p>
-<ul>
-<li>Fit model, compute in-sample classification diagnostics (Accuracy, Sensitivity, Specificity, Precision, AUC), and interpret (5)</li>
-<li>Perform 10-fold (or repeated random sub-sampling) CV with the same model and report average out-of-sample classification diagnostics (Accuracy, Sensitivity, Specificity, Precision, and AUC); interpret AUC and compare with the in-sample metrics (10)</li>
-<li>Perform LASSO on the same model/variables. Choose lambda to give the simplest model whose accuracy is near that of the best (i.e., <code>lambda.1se</code>). Discuss which variables are retained. (5)</li>
-<li>Perform 10-fold CV using only the variables lasso selected: compare model's out-of-sample AUC to that of your logistic regressions above (5)</li>
-</ul></li>
+<li><strong>6. (25 pts)</strong></li>
 </ul>
 <pre class="r"><code>lung2 &lt;- data %&gt;% select(-status, -status_f, -sex_f, -ph.karno_c, -pat.karno_c, -logit)
 
@@ -472,14 +425,14 @@ class_diag(prob, data$y)</code></pre>
 <pre class="r"><code>set.seed(1234)
 k = 10
 
-data1 &lt;- lung2 %&gt;% sample_frac  #put rows of dataset in random order
-folds &lt;- ntile(1:nrow(data1), n = 10)  #create fold labels
+data1 &lt;- lung2 %&gt;% sample_frac 
+folds &lt;- ntile(1:nrow(data1), n = 10)  
 
 diags &lt;- NULL
 for (i in 1:k) {
-    train &lt;- data1[folds != i, ]  #create training set (all but fold i)
-    test &lt;- data1[folds == i, ]  #create test set (just fold i)
-    truth &lt;- test$y  #save truth labels from fold i
+    train &lt;- data1[folds != i, ]  
+    test &lt;- data1[folds == i, ]  
+    truth &lt;- test$y  
     
     fit4 &lt;- glm(y ~ ., data = train, family = &quot;binomial&quot;)
     probs &lt;- predict(fit4, newdata = test, type = &quot;response&quot;)
@@ -517,14 +470,14 @@ coef(lasso_fit)</code></pre>
 <pre class="r"><code>set.seed(1234)
 k = 10
 
-data &lt;- lung2 %&gt;% sample_frac  #put rows of dataset in random order
-folds &lt;- ntile(1:nrow(data), n = 10)  #create fold labels
+data &lt;- lung2 %&gt;% sample_frac  
+folds &lt;- ntile(1:nrow(data), n = 10)  
 
 diags &lt;- NULL
 for (i in 1:k) {
-    train &lt;- data[folds != i, ]  #create training set (all but fold i)
-    test &lt;- data[folds == i, ]  #create test set (just fold i)
-    truth &lt;- test$y  #save truth labels from fold i
+    train &lt;- data[folds != i, ]  
+    test &lt;- data[folds == i, ]  
+    truth &lt;- test$y  
     
     fit5 &lt;- glm(y ~ sex + ph.ecog, 
         data = train, family = &quot;binomial&quot;)
@@ -537,39 +490,10 @@ diags %&gt;% summarize_all(mean)</code></pre>
 <pre><code>## acc sens spec ppv f1 auc
 ## 1 0.7716912 0.9595238 0.3261905 0.7803571 0.8562922
 0.7049199</code></pre>
-<p>The variables sex and ph.ecog were retained.</p>
-</div>
-<div id="where-do-i-find-data-again" class="section level2">
-<h2>Where do I find data again?</h2>
-<p>You can choose ANY datasets you want that meet the above criteria for variables and observations. You can make it as serious as you want, or not, but keep in mind that you will be incorporating this project into a portfolio webpage for your final in this course, so choose something that really reflects who you are, or something that you feel will advance you in the direction you hope to move career-wise, or something that you think is really neat, or whatever. On the flip side, regardless of what you pick, you will be performing all the same tasks, so it doesn't end up being that big of a deal.</p>
-<p>If you are totally clueless and have no direction at all, log into the server and type</p>
-<pre class="r"><code>data(package = .packages(all.available = TRUE))</code></pre>
-<p>This will print out a list of <strong>ALL datasets in ALL packages</strong> installed on the server (a ton)! Scroll until your eyes bleed! Actually, do not scroll that much... To start with something more manageable, just run the command on your own computer, or just run <code>data()</code> to bring up the datasets in your current environment. To read more about a dataset, do <code>?packagename::datasetname</code>.</p>
-<p>If it is easier for you, and in case you don't have many packages installed, a list of R datasets from a few common packages (also downloadable in CSV format) is given at the following website: <a href="https://vincentarelbundock.github.io/Rdatasets/datasets.html" class="uri">https://vincentarelbundock.github.io/Rdatasets/datasets.html</a>.</p>
-<ul>
-<li><p>A good package to download for fun/relevant data is <code>fivethiryeight</code>. Run <code>install.packages(&quot;fivethirtyeight&quot;),</code> load the packages with <code>library(fivethirtyeight)</code>, run <code>data()</code>, and then scroll down to view the datasets. Here is an online list of all 127 datasets (with links to the 538 articles). Lots of sports, politics, current events, etc.</p></li>
-<li><p>If you have already started to specialize (e.g., ecology, epidemiology) you might look at discipline-specific R packages (vegan, epi, respectively). We will be using some tools from these packages later in the course, but they come with lots of data too, which you can explore according to the directions above</p></li>
-<li><p>However, you <em>emphatically DO NOT</em> have to use datasets available via R packages! In fact, I would much prefer it if you found the data from completely separate sources and brought them together (a much more realistic experience in the real world)! You can even reuse data from your SDS328M project, provided it shares a variable in common with other data which allows you to merge the two together (e.g., if you still had the timestamp, you could look up the weather that day: <a href="https://www.wunderground.com/history/" class="uri">https://www.wunderground.com/history/</a>). If you work in a research lab or have access to old data, you could potentially merge it with new data from your lab!</p></li>
-<li><p>Here is a curated list of interesting datasets (read-only spreadsheet format): <a href="https://docs.google.com/spreadsheets/d/1wZhPLMCHKJvwOkP4juclhjFgqIY8fQFMemwKL2c64vk/edit" class="uri">https://docs.google.com/spreadsheets/d/1wZhPLMCHKJvwOkP4juclhjFgqIY8fQFMemwKL2c64vk/edit</a></p></li>
-<li><p>Here is another great compilation of datasets: <a href="https://github.com/rfordatascience/tidytuesday" class="uri">https://github.com/rfordatascience/tidytuesday</a></p></li>
-<li><p>Here is the UCI Machine Learning Repository: <a href="https://archive.ics.uci.edu/ml/index.php" class="uri">https://archive.ics.uci.edu/ml/index.php</a></p>
-<ul>
-<li>See also <a href="https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research#Biological_data" class="uri">https://en.wikipedia.org/wiki/List_of_datasets_for_machine-learning_research#Biological_data</a></li>
-</ul></li>
-<li><p>Here is another good general place to look: <a href="https://www.kaggle.com/datasets" class="uri">https://www.kaggle.com/datasets</a></p></li>
-<li><p>To help narrow your search down or to see interesting variable ideas, check out <a href="https://www.tylervigen.com/spurious-correlations" class="uri">https://www.tylervigen.com/spurious-correlations</a>. This is the spurious correlations website, and it is fun, but if you look at the bottom of each plot you will see sources for the data. This is a good place to find very general data (or at least get a sense of where you can scrape data together from)!</p></li>
-<li><p>If you are interested in medical data, check out www.countyhealthrankings.org</p></li>
-<li><p>If you are interested in scraping UT data, they make <em>loads</em> of data public (e.g., beyond just professor CVs and syllabi). Check out all the data that is available in the statistical handbooks: <a href="https://reports.utexas.edu/statistical-handbook" class="uri">https://reports.utexas.edu/statistical-handbook</a></p></li>
-</ul>
-<div id="broader-data-sources" class="section level5">
-<h5>Broader data sources:</h5>
-<p><a href="www.data.gov">Data.gov</a> 186,000+ datasets!</p>
-<p><a href="Social%20Explorer">Social Explorer</a> is a nice interface to Census and American Community Survey data (more user-friendly than the government sites). May need to sign up for a free trial.</p>
-<p><a href="www.bls.gov">U.S. Bureau of Labor Statistics</a></p>
-<p><a href="www.census.gov">U.S. Census Bureau</a></p>
-<p><a href="www.gapminder.org/data">Gapminder</a>, data about the world.</p>
+<p>The accuracy of the full model, 0.7650602, indicates that about 76.5% of cases were classified correctly. The sensitivity of the model, 0.9411765, indicates that about 94.1% of reported deaths were correctly classified. The specificity of the model, 0.3191489, indicates that only about 31.9% of survivors were correctly classified. The precision, 0.7777778, is the proportion of the cases classified as deaths that actually were. The AUC for this model is 0.7189344, which is classified as fair.</p>
+<p>The accuracy of the 10-fold CV, 0.7356618, indicates that about 73.6% of cases were classified correctly. The sensitivity of the model, 0.9261905, indicates that about 92.6% of reported deaths were correctly classified. The specificity of the model, 0.2869048 , indicates that only about 28.7% of survivors were correctly classified. The precision, 0.7633657, is the proportion of the cases classified as deaths that actually were. The AUC for this model is 0.6269963, which is classified as poor. These out-sample metrics indicate that the model is less effective than the in-sample metrics do; the AUC is 0.0919381 points lower.</p>
+<p>After the LASSO was performed on the full model, only the variables sex and ph.ecog returned significant coefficients, so only sex and ph.ecog were retained. The simplified out-of-sample AUC was 0.7049199, which is close to the full in-sample AUC of 0.7189344 and much higher than the full out-sample AUC of 0.6269963.</p>
 <p>...</p>
-</div>
 </div>
 </div>
 

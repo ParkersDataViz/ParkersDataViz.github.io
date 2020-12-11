@@ -1,9 +1,22 @@
 ---
-title: 'Test Post '
-author: ''
-date: '2020-12-10'
+title: 'Reticulate Package: Python and R Communication'
+author: 'Parker Spradley'
+date: '12/11/2020'
 slug: test-post
 categories: []
 tags: []
 description: ''
 ---
+#Using the Reticulate Package
+
+Creating an object in R:
+```{r}
+#install.packages("reticulate")
+library(reticulate)
+xmas <- "santa"
+```
+
+Accessing the object in Python:
+```{python}
+
+```

@@ -22,7 +22,7 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/project/project2/</guid>
-      <description>Modeling Instructions A knitted R Markdown document (preferably HTML) and the raw R Markdown file (as .Rmd) should both be submitted to Canvas by 11:59pm on the due date. These two documents will be graded jointly, so they must be consistent (i.e., don’t change the R Markdown file without also updating the knitted document). Knit an html copy too, for later! In the .Rmd file for Project 2, you can copy the first code-chunk into your project .</description>
+      <description>Modeling Introduction This dataset, titled NCCTG Lung Cancer Data, contains information about survival times and the physical well-being of patients from the North Central Cancer Treatment Group who have advanced lung cancer. The dataset has 227 observations of 10 variables, and each observation corresponds to a different patient. There are 4 categorical variables: inst, status, sex, and ph.ecog. Institution refers to the patient&#39;s institution code, status refers to whether or not the patient died during the observation time of the study, sex refers to whether the patient is male or female, and ph.</description>
     </item>
     
   </channel>
