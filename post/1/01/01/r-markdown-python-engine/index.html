@@ -7,7 +7,7 @@
     <meta name="author" content="Parker Spradley" />
     
     <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
-    <title>Python Applications in Biology: FASTA</title>
+    <title>R Markdown Python Engine</title>
     <meta name="generator" content="Hugo 0.79.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
@@ -54,13 +54,13 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="../../../../../post/2020/12/11/python-applications-in-biology/">Python Applications in Biology: FASTA</a></strong>
+            <strong><a href="../../../../../post/1/01/01/r-markdown-python-engine/">R Markdown Python Engine</a></strong>
           </h3>
         </div>
  
 <div class="blog-title">
           <h4>
-         December 11, 2020 
+         January 1, 0001 
             &nbsp;&nbsp;
             
           </h4>
@@ -72,33 +72,61 @@
               
 
 
-<div id="using-a-regex-function-to-count-the-of-sequences-in-a-fasta-file" class="section level1">
-<h1>Using a RegEx Function to Count the # of Sequences in a FASTA File</h1>
-<p>FASTA is a text-based format for representing nucleotide or amino acid sequences using single-letter code: Adenine = A, Thymine = T, C = Cytosine. A popular, free tool for comparing FASTA sequences is NIH's BLAST: <a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi" class="uri">https://blast.ncbi.nlm.nih.gov/Blast.cgi</a></p>
-<p>BLAST's algorithm is written in C and C++, but regular expressions in Python can perform a lot of the same functions as BLAST such as counting k-mers, calculating sequence alignment, etc. This is an example of a function I wrote for class that counts the number of sequences in a FASTA file by matching the number of single-line descriptors (&quot;&gt;&quot;):</p>
-<pre class="python"><code>file_handle = open(&quot;ls_orchid.fasta&quot;, &quot;r&quot;) # open in &#39;r&#39; mode  to read the file
-contents = file_handle.read() # reads the entire file 
-file_handle.close() # always close at the end
-
-from pprint import pprint
-
-
-
-def count_seq(fname):
-    count = 0
-    with open(fname, &#39;r&#39;) as f:
-        for line in f:
-            if line.startswith(&quot;&gt;&quot;):
-                count += 1
-    print(&quot;Total number of sequences is:&quot;, count)
-
-fname = &quot;ls_orchid.fasta&quot;
-count_seq(fname)</code></pre>
-<pre><code>## Total number of sequences is: 94</code></pre>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>The <strong>reticulate</strong> package includes a Python engine for <a href="https://rmarkdown.rstudio.com/">R Markdown</a> that enables easy interoperability between Python and R chunks.</p>
+<p>Python chunks behave very similar to R chunks (including graphical output from matplotlib) and the two languages have full access each other's objects. Built in conversion for many Python object types is provided, including <a href="https://numpy.org/">NumPy</a> arrays and <a href="https://pandas.pydata.org/">Pandas</a> data frames.</p>
+<p>If you are using knitr version 1.18 or higher, then the reticulate Python engine will be enabled by default whenever reticulate is installed and no further setup is required. If you are running an earlier version of knitr or want to disable the use of the reticulate engine see the <a href="#engine-setup">Engine Setup</a> section below.</p>
 </div>
-<div id="lab-connection" class="section level1">
-<h1>Lab Connection!</h1>
-<p>NGS (1990-2000s) sequencing machine from the National Cancer Institute: <img src="../../../../../post/2020-12-11-python-applications-in-biology_files/national-cancer-institute-klUaFqLAcFw-unsplash.jpg" style="width:30.0%" style="height:30.0%" /></p>
+<div id="python-version" class="section level2">
+<h2>Python Version</h2>
+<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which(&quot;python&quot;)</code>). If you want to use an alternate version you should add one of the <code>use_python()</code> family of functions to your R Markdown setup chunk, for example:</p>
+<div class="figure">
+<img src="images/python_version.png" class="screenshot" style="width:98.0%" />
+
+</div>
+<p>See the article on <a href="versions.html">Python Version Configuration</a> for additional details on configuring Python versions (including the use of conda or virtualenv environments).</p>
+</div>
+<div id="python-chunks" class="section level2">
+<h2>Python Chunks</h2>
+<p>Python code chunks work exactly like R code chunks: Python code is executed and any print or graphical (matplotlib) output is included within the document.</p>
+<p>Python chunks all execute within a single Python session so have access to all objects created in previous chunks. Chunk options like <code>echo</code>, <code>include</code>, etc. all work as expected.</p>
+<p>Here's an R Markdown document that demonstrates this:</p>
+<div class="figure">
+<img src="images/python_chunks.png" class="screenshot" style="width:98.0%" />
+
+</div>
+<p><a href="https://rstudio.com/products/rstudio/download/">RStudio v1.2</a> or greater for reticulate IDE support.</p>
+</div>
+<div id="calling-python-from-r" class="section level2">
+<h2>Calling Python from R</h2>
+<p>All objects created within Python chunks are available to R using the <code>py</code> object exported by the reticulate package. For example, the following code demonstrates reading and filtering a CSV file using Pandas then plotting the resulting data frame using ggplot2:</p>
+<div class="figure">
+<img src="images/rmarkdown_engine_zoomed.png" class="screenshot" style="width:98.0%" />
+
+</div>
+<p>See the <a href="calling_python.html">Calling Python from R</a> article for additional details on how to interact with Python types from within R</p>
+</div>
+<div id="calling-r-from-python" class="section level2">
+<h2>Calling R from Python</h2>
+<p>You can analagously access R objects within Python chunks via the <code>r</code> object. For example:</p>
+<div class="figure">
+<img src="images/r_from_python.png" class="screenshot" style="width:98.0%" />
+
+</div>
+</div>
+<div id="engine-setup" class="section level2">
+<h2>Engine Setup</h2>
+<p>If you are using a version of knitr prior to 1.18 then add this code to your setup chunk to enable the reticulate Python engine:</p>
+<div class="figure">
+<img src="images/reticulate_enable.png" class="screenshot" style="width:98.0%" />
+
+</div>
+<p>If you do not wish to use the reticulate Python engine then set the <code>python.reticulate</code> chunk option to <code>FALSE</code>:</p>
+<div class="figure">
+<img src="images/reticulate_disable.png" class="screenshot" style="width:98.0%" />
+
+</div>
 </div>
 
             

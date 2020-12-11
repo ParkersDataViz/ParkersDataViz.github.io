@@ -1,0 +1,28 @@
+---
+title: R and Python Communication with Reticulate
+author: ''
+date: '2020-12-11'
+slug: r-and-python-communication-with-reticulate
+categories: []
+tags: []
+description: ''
+---
+#R and Python Communication Using the 'Reticulate' Package
+
+Creating an object in R:
+```{r}
+#install.packages("reticulate")
+library(reticulate)
+
+xmas <- "Eat all the Christmas"
+```
+
+Accessing the object with Python: 
+```{python}
+
+cookie = "cookies"
+print(r.xmas,cookie)
+```
+
+Here you go!
+![](/post/2020-12-11-r-and-python-communication-with-reticulate_files/valentina-dominguez-syJhMS-Jxxg-unsplash.jpg){width=30% height=30%}

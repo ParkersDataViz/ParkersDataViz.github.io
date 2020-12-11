@@ -7,7 +7,7 @@
     <meta name="author" content="Parker Spradley" />
     
     <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
-    <title>Python Applications in Biology: FASTA</title>
+    <title>R and Python Communication with Reticulate</title>
     <meta name="generator" content="Hugo 0.79.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
@@ -54,7 +54,7 @@
       <div class="container">
         <div class="blog-post">
           <h3>
-            <strong><a href="../../../../../post/2020/12/11/python-applications-in-biology/">Python Applications in Biology: FASTA</a></strong>
+            <strong><a href="../../../../../post/2020/12/11/r-and-python-communication-with-reticulate/">R and Python Communication with Reticulate</a></strong>
           </h3>
         </div>
  
@@ -72,33 +72,19 @@
               
 
 
-<div id="using-a-regex-function-to-count-the-of-sequences-in-a-fasta-file" class="section level1">
-<h1>Using a RegEx Function to Count the # of Sequences in a FASTA File</h1>
-<p>FASTA is a text-based format for representing nucleotide or amino acid sequences using single-letter code: Adenine = A, Thymine = T, C = Cytosine. A popular, free tool for comparing FASTA sequences is NIH's BLAST: <a href="https://blast.ncbi.nlm.nih.gov/Blast.cgi" class="uri">https://blast.ncbi.nlm.nih.gov/Blast.cgi</a></p>
-<p>BLAST's algorithm is written in C and C++, but regular expressions in Python can perform a lot of the same functions as BLAST such as counting k-mers, calculating sequence alignment, etc. This is an example of a function I wrote for class that counts the number of sequences in a FASTA file by matching the number of single-line descriptors (&quot;&gt;&quot;):</p>
-<pre class="python"><code>file_handle = open(&quot;ls_orchid.fasta&quot;, &quot;r&quot;) # open in &#39;r&#39; mode  to read the file
-contents = file_handle.read() # reads the entire file 
-file_handle.close() # always close at the end
+<div id="r-and-python-communication-using-the-reticulate-package" class="section level1">
+<h1>R and Python Communication Using the 'Reticulate' Package</h1>
+<p>Creating an object in R:</p>
+<pre class="r"><code>#install.packages(&quot;reticulate&quot;)
+library(reticulate)
 
-from pprint import pprint
-
-
-
-def count_seq(fname):
-    count = 0
-    with open(fname, &#39;r&#39;) as f:
-        for line in f:
-            if line.startswith(&quot;&gt;&quot;):
-                count += 1
-    print(&quot;Total number of sequences is:&quot;, count)
-
-fname = &quot;ls_orchid.fasta&quot;
-count_seq(fname)</code></pre>
-<pre><code>## Total number of sequences is: 94</code></pre>
-</div>
-<div id="lab-connection" class="section level1">
-<h1>Lab Connection!</h1>
-<p>NGS (1990-2000s) sequencing machine from the National Cancer Institute: <img src="../../../../../post/2020-12-11-python-applications-in-biology_files/national-cancer-institute-klUaFqLAcFw-unsplash.jpg" style="width:30.0%" style="height:30.0%" /></p>
+xmas &lt;- &quot;Eat all the Christmas&quot;</code></pre>
+<p>Accessing the object with Python:</p>
+<pre class="python"><code>
+cookie = &quot;cookies&quot;
+print(r.xmas,cookie)</code></pre>
+<pre><code>## Eat all the Christmas cookies</code></pre>
+<p>Here you go! <img src="../../../../../post/2020-12-11-r-and-python-communication-with-reticulate_files/valentina-dominguez-syJhMS-Jxxg-unsplash.jpg" style="width:30.0%" style="height:30.0%" /></p>
 </div>
 
             

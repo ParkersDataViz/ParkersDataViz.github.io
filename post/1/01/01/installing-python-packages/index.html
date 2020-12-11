@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Parker Spradley" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
+    <title>Installing Python Packages</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../../../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../../../../post/">BLOG</a></li>
+        
+        <li><a href="../../../../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../../../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../../../../post/1/01/01/installing-python-packages/">Installing Python Packages</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>Python packages are typically installed from one of two package repositories:</p>
+<ol style="list-style-type: decimal">
+<li><p><a href="https://pypi.org/">PyPI</a>; or</p></li>
+<li><p><a href="https://conda.io/docs/">Conda</a></p></li>
+</ol>
+<p>Any Python package you install from PyPI or Conda can be used from R with reticulate.</p>
+<p>Each version of Python on your system has its own set of packages and reticulate will automatically find a version of Python that contains the first package that you import from R. If need be you can also configure reticulate to use a <a href="versions.html">specific version</a> of Python.</p>
+<div id="python-environments" class="section level3">
+<h3>Python environments</h3>
+<p>When installing Python packages it's typically a good practice to isolate them within a Python environment (a named Python installation that exists for a specific project or purpose). This provides a measure of isolation, so that updating a Python package for one project doesn't impact other projects.</p>
+<p>The reticulate package includes functions for creating Python environments (either virtualenvs or conda envs) and installing packages within them. Using virtualenvs is supported on Linux and Mac OS X, using Conda environments is supported on all platforms including Windows.</p>
+</div>
+</div>
+<div id="simple-installation" class="section level2">
+<h2>Simple Installation</h2>
+<p>The reticulate package includes a <code>py_install()</code> function that can be used to install one or more Python packages. The packages will be by default be installed within a virtualenv or Conda environment named &quot;r-reticulate&quot;. For example:</p>
+<pre class="r"><code>library(reticulate)
+py_install(&quot;pandas&quot;)</code></pre>
+<p>This provides a straightforward high-level interface to package installation and helps encourage the use of a common default environment (&quot;r-reticulate&quot;) across the installation of distinct Python packages.</p>
+<p>There are also functions available for directly managing both Conda and virtualenvs for situations where you want more control over how packages are installed. These functions are covered in the sections below.</p>
+</div>
+<div id="conda-installation" class="section level2">
+<h2>Conda installation</h2>
+<p>The following functions are available for managing Conda environments:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>conda_list()</code></td>
+<td>List all available conda environments</td>
+</tr>
+<tr class="even">
+<td><code>conda_create()</code></td>
+<td>Create a new conda environment</td>
+</tr>
+<tr class="odd">
+<td><code>conda_install()</code></td>
+<td>Install a package within a conda environment</td>
+</tr>
+<tr class="even">
+<td><code>conda_remove()</code></td>
+<td>Remove individual packages or an entire conda environment</td>
+</tr>
+</tbody>
+</table>
+<p>Here's an example of using these functions to create an environment, install packages within it, then use the environment from R:</p>
+<pre class="r"><code>library(reticulate)
+
+# create a new environment 
+conda_create(&quot;r-reticulate&quot;)
+
+# install SciPy
+conda_install(&quot;r-reticulate&quot;, &quot;scipy&quot;)
+
+# import SciPy (it will be automatically discovered in &quot;r-reticulate&quot;)
+scipy &lt;- import(&quot;scipy&quot;)</code></pre>
+<p>Note that you may have a given Python package installed in multiple Conda environments, in that case you may want to call the <code>use_condaenv()</code> function to ensure that a specific Conda environment is utilized by reticulate:</p>
+<pre class="r"><code>library(reticulate)
+
+# indicate that we want to use a specific condaenv
+use_condaenv(&quot;r-reticulate&quot;)
+
+# import SciPy (will use &quot;r-reticulate&quot; as per call to use_condaenv)
+scipy &lt;- import(&quot;scipy&quot;)</code></pre>
+</div>
+<div id="virtualenv-installation" class="section level2">
+<h2>virtualenv installation</h2>
+<p>The following functions are available for managing Python virtualenvs:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>virtualenv_list()</code></td>
+<td>List all available virtualenvs</td>
+</tr>
+<tr class="even">
+<td><code>virtualenv_create()</code></td>
+<td>Create a new virtualenv</td>
+</tr>
+<tr class="odd">
+<td><code>virtualenv_install()</code></td>
+<td>Install a package within a virtualenv</td>
+</tr>
+<tr class="even">
+<td><code>virtualenv_remove()</code></td>
+<td>Remove individual packages or an entire virtualenv</td>
+</tr>
+</tbody>
+</table>
+<p>Virtual environments are by default located at <code>~/.virtualenvs</code>. You can change this behavior by defining the <code>WORKON_HOME</code> environment variable.</p>
+<p>Here's an example of using these functions to create an environment, install packages within it, then use the environment from R:</p>
+<pre class="r"><code>library(reticulate)
+
+# create a new environment 
+virtualenv_create(&quot;r-reticulate&quot;)
+
+# install SciPy
+virtualenv_install(&quot;r-reticulate&quot;, &quot;scipy&quot;)
+
+# import SciPy (it will be automatically discovered in &quot;r-reticulate&quot;)
+scipy &lt;- import(&quot;scipy&quot;)</code></pre>
+<p>Note that you may have a given Python package installed in multiple environments, in that case you may want to call the <code>use_virtualenv()</code> function to ensure that a specific virtualenv is utilized by reticulate:</p>
+<pre class="r"><code>library(reticulate)
+
+# indicate that we want to use a specific virtualenv
+use_virtualenv(&quot;r-reticulate&quot;)
+
+# import SciPy (will use &quot;r-reticulate&quot; as per call to use_virtualenv)
+scipy &lt;- import(&quot;scipy&quot;)</code></pre>
+</div>
+<div id="shell-installation" class="section level2">
+<h2>Shell installation</h2>
+<p>You can also use standard shell installation utilities (<code>pip</code> or <code>conda</code>) to install Python packages:</p>
+<pre class="bash"><code># install into system level Python
+$ sudo pip install SciPy
+
+# install into active Conda environment
+$ conda install SciPy</code></pre>
+<p>When doing this, be sure to make note of which version of Python your package has been installed within, and call <code>use_python()</code> functions as appropriate to ensure that this version is used by reticulate.</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../../../../js/docs.min.js"></script>
+<script src="../../../../../js/main.js"></script>
+
+<script src="../../../../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

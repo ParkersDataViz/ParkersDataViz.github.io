@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Parker Spradley" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../img/favicon.ico">
+    <title>Using reticulate in an R Package</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../../../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../../../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../../../../post/">BLOG</a></li>
+        
+        <li><a href="../../../../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../../../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../../../../post/1/01/01/using-reticulate-in-an-r-package/">Using reticulate in an R Package</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="delay-loading-python-modules" class="section level2">
+<h2>Delay Loading Python Modules</h2>
+<p>If you write an R package that wraps one or more Python packages, it's likely that you'll be importing Python modules within the <code>.onLoad</code> method of your package so that you can have convenient access to them within the rest of the package source code.</p>
+<p>When you do this, you should use the <code>delay_load</code> flag to the <code>import()</code> function, for example:</p>
+<pre class="r"><code># global reference to scipy (will be initialized in .onLoad)
+scipy &lt;- NULL
+
+.onLoad &lt;- function(libname, pkgname) {
+  # use superassignment to update global reference to scipy
+  scipy &lt;&lt;- reticulate::import(&quot;scipy&quot;, delay_load = TRUE)
+}</code></pre>
+<p>Using the <code>delay_load</code> flag has two important benefits:</p>
+<ol style="list-style-type: decimal">
+<li><p>It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).</p></li>
+<li><p>It allows users to specify a desired location for Python before interacting with your package. For example:</p>
+<pre class="r"><code>library(mypackage)
+reticulate::use_virtualenv(&quot;~/pythonenvs/userenv&quot;)
+# call functions from mypackage</code></pre></li>
+</ol>
+<p>Without the <code>delay_load</code>, Python would be loaded immediately and the user's call to <code>use_virtualenv</code> would have no effect.</p>
+</div>
+<div id="installing-python-dependencies" class="section level2">
+<h2>Installing Python Dependencies</h2>
+<p>Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It's furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together).</p>
+<p>The <code>py_install()</code> function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within a virtualenv or Conda environment named &quot;r-reticulate&quot;. For example:</p>
+<pre class="r"><code>library(reticulate)
+py_install(&quot;scipy&quot;)</code></pre>
+<p>You can document the use of this function along with your package or alternatively provide a wrapper function for <code>py_install()</code>. For example:</p>
+<pre class="r"><code>install_scipy &lt;- function(method = &quot;auto&quot;, conda = &quot;auto&quot;) {
+  reticulate::py_install(&quot;scipy&quot;, method = method, conda = conda)
+}</code></pre>
+<p>While reticulate is capable of binding to <a href="calling_python.html#python-version">any Python environment</a> available on a system, it's much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.</p>
+</div>
+<div id="checking-and-testing-on-cran" class="section level2">
+<h2>Checking and Testing on CRAN</h2>
+<p>If you use <strong>reticulate</strong> in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass its tests when run on CRAN.</p>
+<p>There are two things you should do to ensure your package is well behaved on CRAN:</p>
+<ol style="list-style-type: decimal">
+<li><p>Use the <code>delay_load</code> option (as described above) to ensure that the module (and Python) is loaded only on its first use. For example:</p>
+<pre class="r"><code># python &#39;scipy&#39; module I want to use in my package
+scipy &lt;- NULL
+
+.onLoad &lt;- function(libname, pkgname) {
+  # delay load foo module (will only be loaded when accessed via $)
+  scipy &lt;&lt;- import(&quot;scipy&quot;, delay_load = TRUE)
+}</code></pre></li>
+<li><p>When writing tests, check to see if your module is available and if it isn't then skip the test. For example, if you are using the <strong>testthat</strong> package, you might do this:</p>
+<pre class="r"><code># helper function to skip tests if we don&#39;t have the &#39;foo&#39; module
+skip_if_no_scipy &lt;- function() {
+  have_scipy &lt;- py_module_available(&quot;scipy&quot;)
+  if (!have_scipy)
+    skip(&quot;scipy not available for testing&quot;)
+}
+
+# then call this function from all of your tests
+test_that(&quot;Things work as expected&quot;, {
+  skip_if_no_scipy()
+  # test code here...
+})</code></pre></li>
+</ol>
+</div>
+<div id="implementing-s3-methods" class="section level2">
+<h2>Implementing S3 Methods</h2>
+<p>Python objects exposed by <strong>reticulate</strong> carry their Python classes into R, so it's possible to write S3 methods to customize e.g. the <code>str</code> or <code>print</code> behavior for a given class (note that it's not typically necessary that you do this since the default <code>str</code> and <code>print</code> methods call <code>PyObject_Str</code>, which typically provides an acceptable default behavior).</p>
+<p>If you do decide to implement custom S3 methods for a Python class it's important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become <code>NULL</code> R <code>externalptr</code> objects).</p>
+<p>By default when you attempt to interact with a Python object from a previous session (a <code>NULL</code> R <code>externalptr</code>) an error is thrown. If you want to do something more customized in your S3 method you can use the <code>py_is_null_xptr()</code> function. For example:</p>
+<pre class="r"><code>method.MyModule.MyPythonClass &lt;- function(x, y, ...) {
+  if (py_is_null_xptr(x))
+    # whatever is appropriate
+  else 
+    # interact with the object
+}</code></pre>
+<p>Note that this check isn't required, as by default an R error will occur. If it's desirable to avoid this error for any reason then you can use <code>py_is_null_xptr()</code> to do so.</p>
+<p>The <strong>reticulate</strong> package exports a <code>py_str</code> generic method which is called from the <code>str</code> method only after doing appropriate validation (if the object is NULL then <code>&lt;pointer: 0x0&gt;</code> is returned). You can implement the <code>py_str</code> method as follows:</p>
+<pre class="r"><code>#&#39; @importFrom reticulate py_str
+#&#39; @export 
+py_str.MyModule.MyPythonClass &lt;- function(object, ...) {
+  # interact with the object to generate the string
+}</code></pre>
+<p>The <code>print</code> and <code>summary</code> methods for Python objects both call the <code>str</code> method by default, so if you implement <code>py_str()</code> you will automatically inherit implementations for those methods.</p>
+<div id="converting-between-r-and-python" class="section level3">
+<h3>Converting between R and Python</h3>
+<p><strong>reticulate</strong> provides the generics <code>r_to_py()</code> for converting R objects into Python objects, and <code>py_to_r()</code> for converting Python objects back into R objects. Package authors can provide methods for these generics to convert Python and R objects otherwise not handled by <strong>reticulate</strong>.</p>
+<p><strong>reticulate</strong> provides conversion operators for some of the most commonly used Python objects, including:</p>
+<ul>
+<li>Built-in Python objects (lists, dictionaries, numbers, strings, tuples)</li>
+<li>NumPy arrays,</li>
+<li>Pandas objects (<code>Index</code>, <code>Series</code>, <code>DataFrame</code>),</li>
+<li>Python <code>datetime</code> objects.</li>
+</ul>
+<p>If you see that <strong>reticulate</strong> is missing support for conversion of one or more objects from these packages, please <a href="https://github.com/rstudio/reticulate/issues">let us know</a> and we'll try to implement the missing converter. For Python packages not in this set, you can provide conversion operators in your own extension package.</p>
+</div>
+<div id="writing-your-own-r_to_py-methods" class="section level3">
+<h3>Writing your own <code>r_to_py()</code> methods</h3>
+<p><code>r_to_py()</code> accepts a <code>convert</code> argument, which controls how objects generated from the created Python object are converted. To illustrate, consider the difference between these two cases:</p>
+<pre class="r"><code>library(reticulate)
+
+# [convert = TRUE] =&gt; convert Python objects to R when appropriate
+sys &lt;- import(&quot;sys&quot;, convert = TRUE)
+class(sys$path)
+# [1] &quot;character&quot;
+
+# [convert = FALSE] =&gt; always return Python objects
+sys &lt;- import(&quot;sys&quot;, convert = FALSE)
+class(sys$path)
+# [1] &quot;python.builtin.list&quot; &quot;python.builtin.object&quot;</code></pre>
+<p>This is accomplished through the use of a <code>convert</code> flag, which is set on the Python object wrappers used by <code>reticulate</code>. Therefore, if you're writing a method <code>r_to_py.foo()</code> for an object of class <code>foo</code>, you should take care to preserve the <code>convert</code> flag on the generated object. This is typically done by:</p>
+<ol style="list-style-type: decimal">
+<li><p>Passing <code>convert</code> along to the appropriate lower-level <code>r_to_py()</code> method;</p></li>
+<li><p>Explicitly setting the <code>convert</code> attribute on the returned Python object.</p></li>
+</ol>
+<p>As an example of the second:</p>
+<pre class="r"><code># suppose &#39;make_python_object()&#39; creates a Python object
+# from R objects of class &#39;my_r_object&#39;.
+r_to_py.my_r_object &lt;- function(x, convert) {
+  object &lt;- make_python_object(x)
+  assign(&quot;convert&quot;, convert, envir = object)
+  object
+}</code></pre>
+</div>
+</div>
+<div id="using-travis-ci" class="section level2">
+<h2>Using Travis-CI</h2>
+<p><a href="https://travis-ci.org/">Travis-CI</a> is a commonly used platform for continuous integration and testing of R packages. Making it work with <strong>reticulate</strong> is pretty simple - all you need to do is add a <code>before_install</code> section to a standard R <code>.travis.yml</code> file that asks Travis to guarantee the testing machine has <code>numpy</code> (which <strong>reticulate</strong> depends on) and any Python modules you're interacting with that don't ship with the language itself:</p>
+<pre><code>before_install:
+  - pip install numpy any_other_dependencies go_here</code></pre>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../../../../js/docs.min.js"></script>
+<script src="../../../../../js/main.js"></script>
+
+<script src="../../../../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

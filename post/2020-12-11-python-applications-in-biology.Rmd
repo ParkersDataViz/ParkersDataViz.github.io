@@ -35,7 +35,7 @@ count_seq(fname)
 ```
 
 #Lab Connection!
-Here are some pictures of old (Sanger Sequencing, 1977) and new (NGS, 1990-2000s) sequencing machines: 
-![](/post/2020-12-11-python-applications-in-biology_files/sanger.jpg)
-![](/post/2020-12-11-python-applications-in-biology_files/ngs.jpg)
+NGS (1990-2000s) sequencing machine from the National Cancer Institute: 
+![](/post/2020-12-11-python-applications-in-biology_files/national-cancer-institute-klUaFqLAcFw-unsplash.jpg){width=30% height=30%}
+
 

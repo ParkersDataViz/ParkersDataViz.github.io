@@ -18,6 +18,17 @@ BLAST&#39;s algorithm is written in C and C++, but regular expressions in Python
     </item>
     
     <item>
+      <title>R and Python Communication with Reticulate</title>
+      <link>/post/2020/12/11/r-and-python-communication-with-reticulate/</link>
+      <pubDate>Fri, 11 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/2020/12/11/r-and-python-communication-with-reticulate/</guid>
+      <description> R and Python Communication Using the &#39;Reticulate&#39; Package Creating an object in R:
+#install.packages(&amp;quot;reticulate&amp;quot;) library(reticulate) xmas &amp;lt;- &amp;quot;Eat all the Christmas&amp;quot; Accessing the object with Python:
+ cookie = &amp;quot;cookies&amp;quot; print(r.xmas,cookie) ## Eat all the Christmas cookies Here you go!  </description>
+    </item>
+    
+    <item>
       <title>Project 1: Exploratory Data Analysis</title>
       <link>/project/project1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
