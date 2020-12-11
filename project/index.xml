@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Parker Spradley</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Parker Spradley</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Tue, 01 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Project 2</title>
+      <link>/project/project2/</link>
+      <pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description> Test Project 2  </description>
+    </item>
+    
+    <item>
+      <title>Project 1: Exploratory Data Analysis</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Data Wrangling and Data Exploration Data Sources First source: https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Medicare-Geographic-Variation/GV_PUF State/County Table: All Beneficiaries Second source: https://aspe.hhs.gov/compilation-state-data-affordable-care-act Compilation of State Data on the Affordable Care Act
+0. Introduction (4 pts) My project combines a dataset from the Centers for Medicare &amp;amp; Medicaid Services (CMS) with a dataset from the U.S. Department of Health and Human services. Both of these datasets contain Medicare beneficiary data grouped by state from the year 2015.</description>
+    </item>
+    
+  </channel>
+</rss>

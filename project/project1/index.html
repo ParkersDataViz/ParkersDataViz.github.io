@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Parker Spradley" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1: Exploratory Data Analysis</title>
+    <meta name="generator" content="Hugo 0.79.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1: Exploratory Data Analysis</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+<script src="../../rmarkdown-libs/kePrint/kePrint.js"></script>
+<link href="../../rmarkdown-libs/lightable/lightable.css" rel="stylesheet" />
+
+
+<div id="data-wrangling-and-data-exploration" class="section level2">
+<h2>Data Wrangling and Data Exploration</h2>
+<div id="data-sources" class="section level3">
+<h3>Data Sources</h3>
+<p>First source: <a href="https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Medicare-Geographic-Variation/GV_PUF" class="uri">https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Medicare-Geographic-Variation/GV_PUF</a> State/County Table: All Beneficiaries Second source: <a href="https://aspe.hhs.gov/compilation-state-data-affordable-care-act" class="uri">https://aspe.hhs.gov/compilation-state-data-affordable-care-act</a> Compilation of State Data on the Affordable Care Act</p>
+<div id="introduction-4-pts" class="section level4">
+<h4>0. Introduction (4 pts)</h4>
+<p>My project combines a dataset from the Centers for Medicare &amp; Medicaid Services (CMS) with a dataset from the U.S. Department of Health and Human services. Both of these datasets contain Medicare beneficiary data grouped by state from the year 2015. The CMS data was acquired from a database of all insurance claims filed by Medicare beneficiaries enrolled in Medicare's Fee For Service (FFS) program. The Affordable Care Act (ACA) data was acquired from the US Census Bureau database and the source Source: The Executive Office of the President of the United States, “Missed Opportunities: The Consequences Of State Decisions Not To Expand Medicaid.” For my compilation I selected 7 out of 319 distinct variables to include: the percentage decrease in the number of uninsured individuals from 2010, the year the ACA was enacted, to 2015, per capita federal spending on Medicare, per capita total patient cost, inpatient cost, and outpatient cost, and the average age and Hierarchical Condition Category (HCC Score) of Medicare beneficiaries. These variables are of interest to me because I am currently conducting research on value-based healthcare, and they are indicators of efficacy for the ACA. The associations I expect to see are a positive correlation between HCC score and federal spending, and a positive correlation between HCC score and total healthcare cost per capita.</p>
+</div>
+<div id="joiningmerging-8-pts" class="section level4">
+<h4>2. Joining/Merging (8 pts)</h4>
+<p>Before joining, the CMS dataset had 3249 observations because it was grouped by county rather than state. I wanted to join the CMS and ACA datasets using state as my common ID variable, so I filtered the CMS dataset by state total before selecting the variables I wanted to include from this dataset and omitting the NAs. The ACA dataset did not have any additional observations beyond the 50 states, so I did not need to drop any before selecting the variables I wanted to include from this dataset and omitting the NAs. Another issue I had with the CMS dataset was that states were listed by their codes rather than their names, so I needed to join it with a third dataset that included state names and codes before combining it with ACA. I also changed 5 variables in CMS to numeric that were not reading as numeric so I would be able to perform summary statistics. Finally, I combined ACA and CMS by the common ID variable state using full_join, which I used because I wanted to return all rows and columns from both CMS and ACA.</p>
+<pre class="r"><code>library(tidyverse)
+library(cluster)
+library(kableExtra)
+
+# install.packages(&#39;tidyverse&#39;) install.packages(kableExtra)
+
+cms &lt;- read.csv(&quot;cms2015.csv&quot;)
+aca &lt;- read.csv(&quot;aca.csv&quot;)
+states &lt;- read.csv(&quot;stateabbr.csv&quot;)
+
+cms &lt;- cms %&gt;% filter(County == &quot;STATE TOTAL&quot;) %&gt;% select(State, 
+    Average.Age, Average.HCC.Score, percapita_cost = Standardized.Per.Capita.Costs, 
+    IP_cost = IP.Per.Capita.Standardized.Costs, OP_cost = OP.Per.Capita.Standardized.Costs) %&gt;% 
+    na.omit()
+
+aca &lt;- aca %&gt;% select(State, decrease_uninsured = Percentage.Point.Decrease.in.Uninsured.Rate, 
+    fed_spending = Net.Increase.in.Federal.Spending) %&gt;% na.omit()
+
+cms &lt;- full_join(cms, states, by = c(State = &quot;Code&quot;))
+cms &lt;- cms %&gt;% select(-State, -Abbrev)
+cms &lt;- cms %&gt;% mutate_at(1:5, as.numeric) %&gt;% na.omit()
+
+fulldata &lt;- full_join(aca, cms, by = c(State = &quot;State.y&quot;))
+# fulldata&lt;- fulldata %&gt;% select(-State.y)</code></pre>
+</div>
+<div id="wrangling-40-pts" class="section level4">
+<h4>3. Wrangling (40 pts)</h4>
+<p>The median decrease in the state-wide uninsured population was 5.0%, the minimum was 1.6% in the state of Massachusetts, and the maximum was 10.3% in the state of Nevada, indicating that the ACA was reasonably effective at lowering the number of uninsured individuals across the United States. The median age for Medicare beneficiaries across the U.S. was 71 and the median HCC score was .99, with scores less than 1.0 considered relatively healthy. The median total healthcare cost per capita was 9100 dollars, the minimum was 6294 dollars in Hawaii, and the maximum was 11284 dollars in Louisiana. The median federal spending per capita was 740 dollars, the minimum was 60 dollars in D.C., and the maximum was 5900 dollars in Florida.</p>
+<p>States that decreased the percent of their uninsured population in the most, Q3 (5.9%) and Q4 (8.5%), did have overall higher federal spending than states that lowered the percent uninsured by the least, Q1 (3.1%) and Q2 (4.5%). Interestingly, the federal spending for Q4 was 620 dollars higher than Q2 but 239 dollars lower than Q3. States with a higher proportion of outpatient to inpatient spending had lower total costs; states with relatively higher inpatient spending averaged 2125 dollars in per capita federal spending whereas states with relatively higher outpatient spending averaged 481 dollars. There were seven states with below median federal spending but above median healthcare costs: Connecticut, Delaware, D.C., Kansas, Massachusetts, Nevada, and Rhode Island.</p>
+<pre class="r"><code>summary(fulldata)</code></pre>
+<pre><code>##         State    decrease_uninsured  fed_spending   Average.Age    
+##  Alabama   : 1   Min.   : 1.600     Min.   :  60   Min.   : 7.000  
+##  Alaska    : 1   1st Qu.: 3.950     1st Qu.: 270   1st Qu.: 8.500  
+##  Arizona   : 1   Median : 5.000     Median : 740   Median : 9.000  
+##  Arkansas  : 1   Mean   : 5.433     Mean   :1319   Mean   : 9.235  
+##  California: 1   3rd Qu.: 6.600     3rd Qu.:1420   3rd Qu.:10.000  
+##  Colorado  : 1   Max.   :10.300     Max.   :5900   Max.   :11.000  
+##  (Other)   :45                                                     
+##  Average.HCC.Score percapita_cost    IP_cost          OP_cost    
+##  Min.   :23.00     Min.   :  39   Min.   : 111.0   Min.   : 103  
+##  1st Qu.:32.00     1st Qu.:1158   1st Qu.: 827.5   1st Qu.: 797  
+##  Median :41.00     Median :1896   Median :1739.0   Median :1270  
+##  Mean   :38.31     Mean   :1854   Mean   :1570.8   Mean   :1401  
+##  3rd Qu.:43.50     3rd Qu.:2710   3rd Qu.:2206.0   3rd Qu.:1928  
+##  Max.   :57.00     Max.   :3133   Max.   :2872.0   Max.   :3136  
+## </code></pre>
+<pre class="r"><code>fulldata %&gt;% select(is.numeric) %&gt;% cor()</code></pre>
+<pre><code>##                    decrease_uninsured fed_spending Average.Age
+## decrease_uninsured         1.00000000   0.28786130 -0.34981764
+## fed_spending               0.28786130   1.00000000  0.05977324
+## Average.Age               -0.34981764   0.05977324  1.00000000
+## Average.HCC.Score          0.04297204   0.53542639 -0.07424445
+## percapita_cost            -0.09579549   0.09908710 -0.06578609
+## IP_cost                    0.04042127   0.43841076 -0.17406185
+## OP_cost                   -0.33663059  -0.46884591  0.02673371
+##                    Average.HCC.Score percapita_cost     IP_cost     OP_cost
+## decrease_uninsured        0.04297204    -0.09579549  0.04042127 -0.33663059
+## fed_spending              0.53542639     0.09908710  0.43841076 -0.46884591
+## Average.Age              -0.07424445    -0.06578609 -0.17406185  0.02673371
+## Average.HCC.Score         1.00000000     0.25539037  0.87629356 -0.35200777
+## percapita_cost            0.25539037     1.00000000  0.29083784 -0.13037926
+## IP_cost                   0.87629356     0.29083784  1.00000000 -0.27511274
+## OP_cost                  -0.35200777    -0.13037926 -0.27511274  1.00000000</code></pre>
+<pre class="r"><code>fulldata %&gt;% summarize_if(is.numeric, mean, na.rm = T)</code></pre>
+<pre><code>##   decrease_uninsured fed_spending Average.Age Average.HCC.Score percapita_cost
+## 1           5.433333     1319.216    9.235294          38.31373       1854.039
+##    IP_cost  OP_cost
+## 1 1570.765 1400.588</code></pre>
+<pre class="r"><code>fulldata %&gt;% summarize_if(is.numeric, sd, na.rm = T)</code></pre>
+<pre><code>##   decrease_uninsured fed_spending Average.Age Average.HCC.Score percapita_cost
+## 1           2.133229     1595.584    1.069359          7.497974       918.9817
+##    IP_cost  OP_cost
+## 1 776.3386 762.5181</code></pre>
+<pre class="r"><code>fulldata %&gt;% summarize_if(is.numeric, median, na.rm = T)</code></pre>
+<pre><code>##   decrease_uninsured fed_spending Average.Age Average.HCC.Score percapita_cost
+## 1                  5          740           9                41           1896
+##   IP_cost OP_cost
+## 1    1739    1270</code></pre>
+<pre class="r"><code>fulldata %&gt;% summarize_if(is.numeric, min, na.rm = T)</code></pre>
+<pre><code>##   decrease_uninsured fed_spending Average.Age Average.HCC.Score percapita_cost
+## 1                1.6           60           7                23             39
+##   IP_cost OP_cost
+## 1     111     103</code></pre>
+<pre class="r"><code>fulldata %&gt;% summarize_if(is.numeric, max, na.rm = T)</code></pre>
+<pre><code>##   decrease_uninsured fed_spending Average.Age Average.HCC.Score percapita_cost
+## 1               10.3         5900          11                57           3133
+##   IP_cost OP_cost
+## 1    2872    3136</code></pre>
+<pre class="r"><code>fulldata %&gt;% select(State, percapita_cost) %&gt;% arrange(desc(percapita_cost)) %&gt;% 
+    head() %&gt;% kbl() %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+State
+</th>
+<th style="text-align:right;">
+percapita_cost
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+District of Columbia
+</td>
+<td style="text-align:right;">
+3133
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alabama
+</td>
+<td style="text-align:right;">
+3038
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pennsylvania
+</td>
+<td style="text-align:right;">
+3017
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Illinois
+</td>
+<td style="text-align:right;">
+2996
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tennessee
+</td>
+<td style="text-align:right;">
+2974
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ohio
+</td>
+<td style="text-align:right;">
+2956
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>fulldata %&gt;% select(State, decrease_uninsured) %&gt;% arrange(desc(decrease_uninsured)) %&gt;% 
+    head() %&gt;% kbl() %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+State
+</th>
+<th style="text-align:right;">
+decrease_uninsured
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Nevada
+</td>
+<td style="text-align:right;">
+10.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Oregon
+</td>
+<td style="text-align:right;">
+10.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+California
+</td>
+<td style="text-align:right;">
+9.9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kentucky
+</td>
+<td style="text-align:right;">
+9.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New Mexico
+</td>
+<td style="text-align:right;">
+8.7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+West Virginia
+</td>
+<td style="text-align:right;">
+8.6
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>fulldata %&gt;% select(State, fed_spending) %&gt;% arrange(desc(fed_spending)) %&gt;% 
+    head() %&gt;% kbl() %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+State
+</th>
+<th style="text-align:right;">
+fed_spending
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Florida
+</td>
+<td style="text-align:right;">
+5900
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+California
+</td>
+<td style="text-align:right;">
+5790
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Texas
+</td>
+<td style="text-align:right;">
+5440
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New York
+</td>
+<td style="text-align:right;">
+5210
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ohio
+</td>
+<td style="text-align:right;">
+5030
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Carolina
+</td>
+<td style="text-align:right;">
+3670
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>fulldata_quantile &lt;- fulldata %&gt;% mutate(quantilegroup = ntile(decrease_uninsured, 
+    4))
+
+fulldata_quantile %&gt;% group_by(quantilegroup) %&gt;% summarize_if(is.numeric, 
+    mean, na.rm = T) %&gt;% head() %&gt;% kbl() %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+quantilegroup
+</th>
+<th style="text-align:right;">
+decrease_uninsured
+</th>
+<th style="text-align:right;">
+fed_spending
+</th>
+<th style="text-align:right;">
+Average.Age
+</th>
+<th style="text-align:right;">
+Average.HCC.Score
+</th>
+<th style="text-align:right;">
+percapita_cost
+</th>
+<th style="text-align:right;">
+IP_cost
+</th>
+<th style="text-align:right;">
+OP_cost
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3.053846
+</td>
+<td style="text-align:right;">
+618.4615
+</td>
+<td style="text-align:right;">
+9.846154
+</td>
+<td style="text-align:right;">
+38.23077
+</td>
+<td style="text-align:right;">
+2125.077
+</td>
+<td style="text-align:right;">
+1481.615
+</td>
+<td style="text-align:right;">
+1839.615
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4.546154
+</td>
+<td style="text-align:right;">
+1069.2308
+</td>
+<td style="text-align:right;">
+9.461538
+</td>
+<td style="text-align:right;">
+36.46154
+</td>
+<td style="text-align:right;">
+1910.615
+</td>
+<td style="text-align:right;">
+1444.154
+</td>
+<td style="text-align:right;">
+1302.615
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+5.892308
+</td>
+<td style="text-align:right;">
+1928.4615
+</td>
+<td style="text-align:right;">
+8.769231
+</td>
+<td style="text-align:right;">
+41.38462
+</td>
+<td style="text-align:right;">
+1555.923
+</td>
+<td style="text-align:right;">
+1916.462
+</td>
+<td style="text-align:right;">
+1296.923
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+8.475000
+</td>
+<td style="text-align:right;">
+1689.1667
+</td>
+<td style="text-align:right;">
+8.833333
+</td>
+<td style="text-align:right;">
+37.08333
+</td>
+<td style="text-align:right;">
+1822.083
+</td>
+<td style="text-align:right;">
+1430.000
+</td>
+<td style="text-align:right;">
+1143.417
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>fulldata_prop_op &lt;- fulldata %&gt;% mutate(prop_op = OP_cost/IP_cost)
+
+fulldata_prop_op %&gt;% select(State, percapita_cost, prop_op) %&gt;% 
+    arrange(desc(percapita_cost)) %&gt;% head() %&gt;% kbl() %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+State
+</th>
+<th style="text-align:right;">
+percapita_cost
+</th>
+<th style="text-align:right;">
+prop_op
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+District of Columbia
+</td>
+<td style="text-align:right;">
+3133
+</td>
+<td style="text-align:right;">
+0.2200557
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alabama
+</td>
+<td style="text-align:right;">
+3038
+</td>
+<td style="text-align:right;">
+0.3666987
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pennsylvania
+</td>
+<td style="text-align:right;">
+3017
+</td>
+<td style="text-align:right;">
+0.5807042
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Illinois
+</td>
+<td style="text-align:right;">
+2996
+</td>
+<td style="text-align:right;">
+0.6179724
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tennessee
+</td>
+<td style="text-align:right;">
+2974
+</td>
+<td style="text-align:right;">
+0.3318777
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ohio
+</td>
+<td style="text-align:right;">
+2956
+</td>
+<td style="text-align:right;">
+0.7054824
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>fulldata_prop_op2 &lt;- fulldata_prop_op %&gt;% mutate(quantilegroup = ntile(prop_op, 
+    2))
+
+fulldata_prop_op2 %&gt;% group_by(quantilegroup) %&gt;% summarize_if(is.numeric, 
+    mean, na.rm = T) %&gt;% head() %&gt;% kbl() %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+quantilegroup
+</th>
+<th style="text-align:right;">
+decrease_uninsured
+</th>
+<th style="text-align:right;">
+fed_spending
+</th>
+<th style="text-align:right;">
+Average.Age
+</th>
+<th style="text-align:right;">
+Average.HCC.Score
+</th>
+<th style="text-align:right;">
+percapita_cost
+</th>
+<th style="text-align:right;">
+IP_cost
+</th>
+<th style="text-align:right;">
+OP_cost
+</th>
+<th style="text-align:right;">
+prop_op
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+5.876923
+</td>
+<td style="text-align:right;">
+2168.846
+</td>
+<td style="text-align:right;">
+9.076923
+</td>
+<td style="text-align:right;">
+43.50
+</td>
+<td style="text-align:right;">
+2104.615
+</td>
+<td style="text-align:right;">
+2089.962
+</td>
+<td style="text-align:right;">
+970.4615
+</td>
+<td style="text-align:right;">
+0.4572193
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+4.972000
+</td>
+<td style="text-align:right;">
+435.600
+</td>
+<td style="text-align:right;">
+9.400000
+</td>
+<td style="text-align:right;">
+32.92
+</td>
+<td style="text-align:right;">
+1593.440
+</td>
+<td style="text-align:right;">
+1030.800
+</td>
+<td style="text-align:right;">
+1847.9200
+</td>
+<td style="text-align:right;">
+3.3197966
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>fulldata %&gt;% filter(fed_spending &lt;= 740 &amp; percapita_cost &gt;= 9099.93) %&gt;% 
+    kbl() %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+State
+</th>
+<th style="text-align:right;">
+decrease_uninsured
+</th>
+<th style="text-align:right;">
+fed_spending
+</th>
+<th style="text-align:right;">
+Average.Age
+</th>
+<th style="text-align:right;">
+Average.HCC.Score
+</th>
+<th style="text-align:right;">
+percapita_cost
+</th>
+<th style="text-align:right;">
+IP_cost
+</th>
+<th style="text-align:right;">
+OP_cost
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tidying-rearranging-widelong-8-pts" class="section level4">
+<h4>1. Tidying: Rearranging Wide/Long (8 pts)</h4>
+<p>My dataset was already tidy, so I decided to widen the dataset by the categorical variable quantilegroup that I created in the data wrangling section for the purpose of demonstrating the reshaping functions. After widening by quantilegroup using pivot_wider, each of four quantiles from quantilegroup had their own columns. I made the data long again and collapsed the four quantiles into a single column using pivot_longer.</p>
+<pre class="r"><code>library(tidyverse)
+
+fulldata_wide &lt;- fulldata_quantile %&gt;% pivot_wider(names_from = &quot;quantilegroup&quot;, 
+    values_from = &quot;State&quot;)
+fulldata_wide %&gt;% head() %&gt;% kbl() %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+decrease_uninsured
+</th>
+<th style="text-align:right;">
+fed_spending
+</th>
+<th style="text-align:right;">
+Average.Age
+</th>
+<th style="text-align:right;">
+Average.HCC.Score
+</th>
+<th style="text-align:right;">
+percapita_cost
+</th>
+<th style="text-align:right;">
+IP_cost
+</th>
+<th style="text-align:right;">
+OP_cost
+</th>
+<th style="text-align:left;">
+2
+</th>
+<th style="text-align:left;">
+3
+</th>
+<th style="text-align:left;">
+4
+</th>
+<th style="text-align:left;">
+1
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+4.5
+</td>
+<td style="text-align:right;">
+1240
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+3038
+</td>
+<td style="text-align:right;">
+2078
+</td>
+<td style="text-align:right;">
+762
+</td>
+<td style="text-align:left;">
+Alabama
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5.0
+</td>
+<td style="text-align:right;">
+90
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+906
+</td>
+<td style="text-align:right;">
+574
+</td>
+<td style="text-align:right;">
+1190
+</td>
+<td style="text-align:left;">
+Alaska
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6.1
+</td>
+<td style="text-align:right;">
+570
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:right;">
+1896
+</td>
+<td style="text-align:right;">
+830
+</td>
+<td style="text-align:right;">
+186
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Arizona
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8.0
+</td>
+<td style="text-align:right;">
+1060
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:right;">
+2378
+</td>
+<td style="text-align:right;">
+1882
+</td>
+<td style="text-align:right;">
+886
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Arkansas
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9.9
+</td>
+<td style="text-align:right;">
+5790
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+44
+</td>
+<td style="text-align:right;">
+2247
+</td>
+<td style="text-align:right;">
+1455
+</td>
+<td style="text-align:right;">
+103
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+California
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7.8
+</td>
+<td style="text-align:right;">
+870
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+1502
+</td>
+<td style="text-align:right;">
+625
+</td>
+<td style="text-align:right;">
+654
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Colorado
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>fulldata_long &lt;- fulldata_wide %&gt;% pivot_longer(cols = (8:11), 
+    names_to = &quot;quantilegroup&quot;)
+fulldata_long %&gt;% head() %&gt;% kbl() %&gt;% kable_styling()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+decrease_uninsured
+</th>
+<th style="text-align:right;">
+fed_spending
+</th>
+<th style="text-align:right;">
+Average.Age
+</th>
+<th style="text-align:right;">
+Average.HCC.Score
+</th>
+<th style="text-align:right;">
+percapita_cost
+</th>
+<th style="text-align:right;">
+IP_cost
+</th>
+<th style="text-align:right;">
+OP_cost
+</th>
+<th style="text-align:left;">
+quantilegroup
+</th>
+<th style="text-align:left;">
+value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+4.5
+</td>
+<td style="text-align:right;">
+1240
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+3038
+</td>
+<td style="text-align:right;">
+2078
+</td>
+<td style="text-align:right;">
+762
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+Alabama
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4.5
+</td>
+<td style="text-align:right;">
+1240
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+3038
+</td>
+<td style="text-align:right;">
+2078
+</td>
+<td style="text-align:right;">
+762
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4.5
+</td>
+<td style="text-align:right;">
+1240
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+3038
+</td>
+<td style="text-align:right;">
+2078
+</td>
+<td style="text-align:right;">
+762
+</td>
+<td style="text-align:left;">
+4
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4.5
+</td>
+<td style="text-align:right;">
+1240
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+3038
+</td>
+<td style="text-align:right;">
+2078
+</td>
+<td style="text-align:right;">
+762
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5.0
+</td>
+<td style="text-align:right;">
+90
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+906
+</td>
+<td style="text-align:right;">
+574
+</td>
+<td style="text-align:right;">
+1190
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+Alaska
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5.0
+</td>
+<td style="text-align:right;">
+90
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+906
+</td>
+<td style="text-align:right;">
+574
+</td>
+<td style="text-align:right;">
+1190
+</td>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="visualizing-30-pts" class="section level4">
+<h4>4. Visualizing (30 pts)</h4>
+<p>Plot 1 (Medicare Correlation Heatmap): There is a high positive correlation (.83) between average HCC score and per capita cost, suggesting that HCC score is an accurate predictor of population health. There is also a high positive correlation (.89) between per capita cost and inpatient cost, suggesting that inpatient cost is the main driver of high total healthcare costs. Higher federal spending is linked to higher inpatient costs (.42), higher HCC scores (.54), higher per capita costs (.52), and lower outpatient costs (-.37). This means that states with sicker populations and higher ratios of outpatient to inpatient treatment require more federal funding.</p>
+<p>Plot 2 (The Effect of Inpatient Cost and HCC Score on Total Cost): This correlation plot displays the relationship between inpatient cost, total healthcare cost, and HCC score. There is a direct relationship between inpatient, total positive healthcare cost, and HCC score; when one of these variables increases the other two tend to increase. This is because higher HCC scores indicate more health conditions, and people with more health conditions are more likely to be admitted to hospitals. Furthermore, higher inpatient cost is correlated strongly with total healthcare cost because it is much more expensive than outpatient treatment, which refers to treatments administered without an overnight stay at a hospital or other medical facility.</p>
+<p>Plot 3 (Federal Spending vs. Outpatient Costs): This barplot displays the relationship between outpatient cost, federal spending, and uninsured quantile. The trends in this plot are less apparent because the correlation between federal spending and outpatient cost is not extreme, but you can still see that states with higher outpatient costs tended to require less federal spending. This is not an intuitive trend, but it is likely that states spending more on outpatient treatments do not need to spend as much on inpatient treatments, which lowers healthcare costs overall. States that decreased the number of uninsured individuals by the most, those in Q4, tended to require more federal spending. It makes sense that it would require more federal funding to expand coverage to a larger number of people. The error bars represent the standard error of the mean in OP_cost, and it is clear that there is a lot of variation in outpatient cost.</p>
+<pre class="r"><code>library(ggplot2)
+
+# plot1
+cormat &lt;- fulldata %&gt;% select_if(is.numeric) %&gt;% cor(use = &quot;pair&quot;)
+
+tidycor &lt;- cormat %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;% 
+    pivot_longer(-1, names_to = &quot;var2&quot;, values_to = &quot;correlation&quot;)
+
+tidycor %&gt;% ggplot(aes(var1, var2, fill = correlation)) + geom_tile() + 
+    scale_fill_gradient2(low = &quot;red&quot;, mid = &quot;white&quot;, high = &quot;green&quot;) + 
+    geom_text(aes(label = round(correlation, 2)), color = &quot;black&quot;, 
+        size = 4) + theme(axis.text.x = element_text(angle = 90, 
+    hjust = 1)) + coord_fixed() + ggtitle(&quot;Medicare Correlation Heatmap&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># plot2
+ggplot(fulldata, aes(IP_cost, percapita_cost)) + geom_point(size = 3, 
+    aes(color = Average.HCC.Score)) + scale_color_gradient2(low = &quot;green&quot;, 
+    mid = &quot;white&quot;, high = &quot;red&quot;, midpoint = 1) + scale_x_continuous(breaks = seq(0, 
+    3000, 200)) + xlab(&quot;Inpatient Cost&quot;) + ylab(&quot;Total Healthcare Per Capita Cost&quot;) + 
+    ggtitle(&quot;The Effect of Inpatient Cost and HCC Score on Total Cost&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># plot3
+ggplot(fulldata_quantile, aes(x = fed_spending, y = OP_cost, 
+    fill = quantilegroup)) + geom_bar(stat = &quot;identity&quot;, width = 0.02) + 
+    geom_errorbar(stat = &quot;summary&quot;, fun.data = &quot;mean_se&quot;, width = 0.07, 
+        color = &quot;red&quot;) + scale_x_log10() + xlab(&quot;Federal Spending&quot;) + 
+    ylab(&quot;Outpatient Cost&quot;) + ggtitle(&quot;Federal Spending vs. Outpatient Cost&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-3.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="dimensionality-reduction-20-pts" class="section level4">
+<h4>5. Dimensionality Reduction (20 pts)</h4>
+<p>To determine the number of clusters to use for my dataset, I first used a silhouette index and visualized it. Two clusters had the highest silhouette index by a large margin, so I selected two (k=2) datapoints to serve as medoids. I initially scaled my numeric variables, but this reduced the goodness of fit by reducing the average silhouette width to .30, so I decided to run cluster analysis (pam) on the unprocessed data.</p>
+<p>I visualized the clusters using ggpair, and I found that per capita cost and inpatient cost had the strongest positive correlation at 0.891, while outpatient cost and percent decrease in uninsured had the strongest negative correlation at -0.511. The mean decrease in uninsured was 5.3% and mean federal spending was 748 dollars for cluster 1, and 6.3% and 4913 dollars for cluster 2. I ran a silhouette plot of pam to find that the average silhouette width was .62, which indicates that a reasonable structure has been found. The final plot shows two variables that account for 68% of the variability in the dataset, which could be calculated using PCA.</p>
+<pre class="r"><code>pam_data &lt;- fulldata %&gt;% select(2:8)
+
+sil_width &lt;- vector()
+for (i in 2:10) {
+    pam_fit &lt;- pam(pam_data, k = i)
+    sil_width[i] &lt;- pam_fit$silinfo$avg.width
+}
+ggplot() + geom_line(aes(x = 1:10, y = sil_width)) + scale_x_continuous(name = &quot;k&quot;, 
+    breaks = 1:10)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># pam&lt;- pam_data %&gt;% scale %&gt;% pam(k=2)
+pam &lt;- pam_data %&gt;% pam(k = 2)
+
+# install.packages(&#39;GGally&#39;)
+library(GGally)
+library(cluster)
+
+
+fulldata %&gt;% mutate(cluster = as.factor(pam$clustering)) %&gt;% 
+    ggpairs(columns = c(2:8), aes(color = cluster))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot(pam, which = 2)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pam_data %&gt;% mutate(cluster = pam$clustering) %&gt;% group_by(cluster) %&gt;% 
+    summarize_all(mean)</code></pre>
+<pre><code>## # A tibble: 2 x 8
+##   cluster decrease_uninsu… fed_spending Average.Age Average.HCC.Sco…
+##     &lt;int&gt;            &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;            &lt;dbl&gt;
+## 1       1             5.55        2327.        9.13             43.2
+## 2       2             5.34         491.        9.32             34.3
+## # … with 3 more variables: percapita_cost &lt;dbl&gt;, IP_cost &lt;dbl&gt;, OP_cost &lt;dbl&gt;</code></pre>
+<pre class="r"><code>plot(pam, which = 1)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-4.png" width="672" style="display: block; margin: auto;" /> ...</p>
+</div>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
